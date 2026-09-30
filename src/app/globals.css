@@ -1,0 +1,291 @@
+@import 'tailwindcss';
+
+/* Valeurs par défaut (marque NovaVault) : écrasées par EventThemeProvider sur chaque landing */
+:root {
+  --ev-bg: #0e0f1a;
+  --ev-surface: #181a2b;
+  --ev-text: #f4f4f8;
+  --ev-muted: #a4a7bd;
+  --ev-primary: #7c83ff;
+  --ev-primary-hover: #666ef0;
+  --ev-on-primary: #0e0f1a;
+  --ev-accent: #e9c46a;
+  --ev-highlight: #7c83ff;
+  --ev-font-display: ui-sans-serif, system-ui, sans-serif;
+  --ev-font-body: ui-sans-serif, system-ui, sans-serif;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@theme inline {
+  --color-ev-bg: var(--ev-bg);
+  --color-ev-surface: var(--ev-surface);
+  --color-ev-text: var(--ev-text);
+  --color-ev-muted: var(--ev-muted);
+  --color-ev-primary: var(--ev-primary);
+  --color-ev-primary-hover: var(--ev-primary-hover);
+  --color-ev-on-primary: var(--ev-on-primary);
+  --color-ev-accent: var(--ev-accent);
+  --color-ev-highlight: var(--ev-highlight);
+  --font-display: var(--ev-font-display);
+  --font-body: var(--ev-font-body);
+}
+
+/* ─── Boutons ─────────────────────────────────────────────── */
+
+@utility btn-primary {
+  @apply relative inline-flex min-h-12 items-center justify-center gap-2 overflow-hidden rounded-full bg-ev-primary px-7 font-semibold text-ev-on-primary transition-[background-color,transform] duration-200 hover:bg-ev-primary-hover active:scale-[0.97] disabled:opacity-60;
+}
+
+@utility btn-quick {
+  @apply inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-full border border-ev-primary px-3 text-sm font-semibold text-ev-text transition-[background-color,color,transform] duration-200 hover:bg-ev-primary hover:text-ev-on-primary active:scale-[0.97];
+}
+
+@utility field {
+  @apply min-h-11 rounded-full border border-ev-muted/40 bg-ev-bg px-4 text-ev-text transition-colors placeholder:text-ev-muted/70 focus:border-ev-primary;
+}
+
+@utility field-area {
+  @apply w-full rounded-2xl border border-ev-muted/40 bg-ev-bg px-4 py-3 text-ev-text transition-colors placeholder:text-ev-muted/70 focus:border-ev-primary;
+}
+
+/* Reflet qui balaie le bouton principal */
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: shine 3.6s var(--ease-out-expo) 1.2s infinite;
+  pointer-events: none;
+}
+@keyframes shine {
+  0% { transform: translateX(-120%); }
+  35%, 100% { transform: translateX(120%); }
+}
+
+/* ─── Base ─────────────────────────────────────────────── */
+
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background: var(--ev-bg);
+  color: var(--ev-text);
+  font-family: var(--ev-font-body);
+}
+:focus-visible {
+  outline: 2px solid var(--ev-highlight);
+  outline-offset: 3px;
+}
+
+/* ─── Titre du hero : les mots montent un par un (le seul grand moment de la page) ── */
+
+.hero-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.08em;
+}
+.hero-word > span {
+  display: inline-block;
+  transform: translateY(105%);
+  animation: word-up 0.8s var(--ease-out-expo) forwards;
+  animation-delay: calc(var(--i) * 70ms + 150ms);
+}
+@keyframes word-up {
+  to { transform: translateY(0); }
+}
+.fade-up {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fade-up 0.7s var(--ease-out-expo) forwards;
+  animation-delay: var(--d, 0ms);
+}
+@keyframes fade-up {
+  to { opacity: 1; transform: none; }
+}
+
+/* Traitements typographiques propres à chaque événement */
+[data-event='black-friday'] .display-title,
+[data-event='cyber-monday'] .display-title {
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+[data-event='halloween'] .hero-title {
+  text-shadow: 0 0 28px color-mix(in srgb, var(--ev-primary) 55%, transparent);
+}
+[data-event='nouvel-an'] .hero-title,
+[data-event='noel'] .hero-title {
+  background: linear-gradient(100deg, var(--ev-text) 20%, var(--ev-highlight) 45%, var(--ev-text) 60%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sheen 6s ease-in-out 1.5s infinite;
+}
+@keyframes sheen {
+  0%, 100% { background-position: 100% 0; }
+  50% { background-position: 0% 0; }
+}
+
+/* ─── Apparition au défilement (grilles et sections) ─────────── */
+
+html[data-js] .reveal:not([data-visible]) > * {
+  opacity: 0;
+  transform: translateY(28px);
+}
+.reveal > * {
+  transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+  transition-delay: calc(var(--i, 0) * 60ms);
+}
+
+/* ─── Bandeau défilant ─────────────────────────────────────── */
+
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--speed, 30s) linear infinite;
+}
+.marquee:hover {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+/* ─── Compte à rebours à volets ─────────────────────────────── */
+
+.flip-digit {
+  display: inline-block;
+  animation: flip 0.45s var(--ease-out-expo);
+  transform-origin: 50% 0;
+}
+@keyframes flip {
+  from { transform: perspective(300px) rotateX(-80deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+/* ─── Offre vedette : bordure lumineuse tournante ─────────────── */
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  background: conic-gradient(from var(--angle), var(--ev-primary), var(--ev-highlight), var(--ev-accent), var(--ev-primary));
+  animation: spin-angle 5s linear infinite;
+}
+@keyframes spin-angle {
+  to { --angle: 360deg; }
+}
+
+/* ─── Panier ─────────────────────────────────────────────── */
+
+.bump {
+  animation: bump 0.45s var(--ease-out-expo);
+}
+@keyframes bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+.confetti-piece {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 11px;
+  border-radius: 2px;
+  animation: confetti 1.1s var(--ease-out-expo) forwards;
+}
+@keyframes confetti {
+  from { transform: translate(-50%, -50%) rotate(0); opacity: 1; }
+  to { transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) rotate(var(--r)); opacity: 0; }
+}
+.live-dot {
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ev-highlight) 70%, transparent); }
+  50% { box-shadow: 0 0 0 7px transparent; }
+}
+
+/* ─── Ambiances d’événement (arrière-plan du hero) ─────────── */
+
+.amb-float { animation: amb-float var(--dur) ease-in-out var(--delay) infinite alternate; }
+@keyframes amb-float {
+  from { transform: translate(0, 0) rotate(-6deg); }
+  to { transform: translate(var(--dx), var(--dy)) rotate(6deg); }
+}
+.amb-fall { animation: amb-fall var(--dur) linear var(--delay) infinite; }
+@keyframes amb-fall {
+  from { transform: translate(0, -10vh) rotate(0); }
+  to { transform: translate(var(--dx), 110vh) rotate(var(--rot)); }
+}
+.amb-twinkle { animation: amb-twinkle var(--dur) ease-in-out var(--delay) infinite; }
+@keyframes amb-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0); }
+  50% { opacity: 1; transform: scale(1) rotate(45deg); }
+}
+.amb-flicker { animation: amb-flicker 3.2s steps(1) infinite; }
+@keyframes amb-flicker {
+  0%, 100% { opacity: 0.85; }
+  8% { opacity: 0.55; }
+  10% { opacity: 0.9; }
+  46% { opacity: 0.7; }
+  48% { opacity: 1; }
+  72% { opacity: 0.6; }
+}
+.amb-drift { animation: amb-drift 18s ease-in-out infinite alternate; }
+@keyframes amb-drift {
+  from { transform: translateX(-8%); }
+  to { transform: translateX(8%); }
+}
+.amb-stripes {
+  background: repeating-linear-gradient(-45deg, transparent 0 22px, color-mix(in srgb, var(--ev-primary) 18%, transparent) 22px 26px);
+  background-size: 200% 200%;
+  animation: amb-stripes 14s linear infinite;
+}
+@keyframes amb-stripes {
+  to { background-position: 100% 100%; }
+}
+.amb-scan { animation: amb-scan 4.5s var(--ease-out-expo) infinite; }
+@keyframes amb-scan {
+  from { transform: translateY(-120%); }
+  to { transform: translateY(120vh); }
+}
+.amb-grid {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--ev-highlight) 35%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--ev-highlight) 35%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  transform: perspective(500px) rotateX(62deg);
+  transform-origin: 50% 100%;
+  animation: amb-grid 3s linear infinite;
+}
+@keyframes amb-grid {
+  to { background-position: 0 56px; }
+}
+
+/* ─── Mouvement réduit : tout s’arrête, rien ne disparaît ─────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .ambience { display: none; }
+  .marquee { transform: none; }
+}

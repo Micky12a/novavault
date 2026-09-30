@@ -1,0 +1,115 @@
+// NovaVault : base de données (PostgreSQL, ex. Neon)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+/// Une des 12 landings. Le contenu complet (textes, thème, mécaniques) est stocké en JSON.
+model Event {
+  id        String   @id
+  slug      String   @unique
+  market    String
+  data      Json
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id             String   @id
+  market         String
+  collection     String
+  name           String
+  description    String?
+  price          Int
+  compareAtPrice Int?
+  imageUrl       String
+  imageAlt       String
+  serves         Int?
+  stockAllocated Int?
+  stockSold      Int?
+  recipients     String[]
+  interests      String[]
+  digital        Boolean  @default(false)
+  teamNote       String?
+  bundleOf       Json?
+  active         Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([collection])
+}
+
+/// Réglages modifiables d’un marché ("fr" ou "us")
+model MarketSetting {
+  market    String   @id
+  data      Json
+  updatedAt DateTime @updatedAt
+}
+
+model LegalPage {
+  slug      String   @id
+  lang      String
+  title     String
+  body      String   @default("")
+  updatedAt DateTime @updatedAt
+}
+
+/// Avis clients réels uniquement
+model Review {
+  id         String   @id @default(cuid())
+  author     String
+  rating     Int
+  text       String
+  photoUrl   String?
+  verified   Boolean  @default(true)
+  collection String?
+  published  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String
+  source    String
+  eventId   String?
+  productId String?
+  createdAt DateTime @default(now())
+
+  @@unique([email, source, productId])
+}
+
+/// Rempli par le webhook Stripe
+model Order {
+  id              String   @id @default(cuid())
+  stripeSessionId String   @unique
+  market          String
+  email           String?
+  amountTotal     Int
+  currency        String
+  status          String
+  items           Json
+  createdAt       DateTime @default(now())
+}
+
+model AdminUser {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  sessions     AdminSession[]
+}
+
+model AdminSession {
+  id        String    @id
+  userId    String
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+}
