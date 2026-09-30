@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { scryptSync, randomBytes } from 'node:crypto';
 import { SEED_EVENTS } from './seed-data/events';
 import { SEED_PRODUCTS } from './seed-data/products';
@@ -15,10 +15,10 @@ async function main() {
   // Événements et réglages : créés s’ils n’existent pas, jamais écrasés (tes modifications admin sont conservées)
   for (const e of Object.values(SEED_EVENTS)) {
     const { id, slug, market, ...rest } = e;
-    await prisma.event.upsert({ where: { id }, create: { id, slug, market, data: { id, slug, market, ...rest } }, update: {} });
+        await prisma.event.upsert({ where: { id }, create: { id, slug, market, data: { id, slug, market, ...rest } as unknown as Prisma.InputJsonValue }, update: {} });
   }
   for (const [market, data] of Object.entries(SEED_SETTINGS)) {
-    await prisma.marketSetting.upsert({ where: { market }, create: { market, data }, update: {} });
+        await prisma.marketSetting.upsert({ where: { market }, create: { market, data: data as unknown as Prisma.InputJsonValue }, update: {} });
   }
   for (const page of SEED_LEGAL_PAGES) {
     await prisma.legalPage.upsert({ where: { slug: page.slug }, create: { ...page }, update: {} });
